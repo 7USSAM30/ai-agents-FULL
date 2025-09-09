@@ -54,7 +54,7 @@ npm run dev
 - "What's the latest technology news?"
 - "Show me recent AI developments"
 - "What's happening in tech today?"
-- "Latest artificial intelligence news"
+- "Latest artificial intelligence news hiii"
 
 #### **Expected Results:**
 - ✅ News Agent status shows as "active"
