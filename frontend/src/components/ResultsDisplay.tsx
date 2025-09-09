@@ -1,7 +1,56 @@
 "use client";
 
+interface Article {
+  headline: string;
+  summary: string;
+  source: string;
+  published_at: string;
+}
+
+interface Source {
+  title: string;
+  similarity_score: number;
+}
+
+interface Document {
+  title: string;
+  content: string;
+  source: string;
+  similarity_score: number;
+}
+
+interface ResultData {
+  type: string;
+  data?: {
+    articles?: Article[];
+    documents?: Document[];
+    sources?: Source[];
+    summary?: string;
+    sentiment?: string;
+    confidence?: number;
+    text?: string;
+    error?: string;
+    [key: string]: unknown;
+  };
+  articles?: Article[];
+  documents?: Document[];
+  sources?: Source[];
+  summary?: string;
+  sentiment?: string;
+  confidence?: number;
+  text?: string;
+  error?: string;
+  [key: string]: unknown;
+}
+
 interface ResultsDisplayProps {
-  results: any;
+  results: {
+    query: string;
+    agents_used?: string[];
+    processing_time?: number;
+    timestamp?: string;
+    result: ResultData;
+  };
 }
 
 export default function ResultsDisplay({ results }: ResultsDisplayProps) {
@@ -18,30 +67,35 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
       );
     }
 
-    const { type, data } = results.result;
+    const result = results.result;
+    const { type } = result;
+    // Handle both nested data structure and direct structure
+    const data = result.data || result;
 
     switch (type) {
       case 'sentiment_analysis':
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Sentiment Analysis</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {data.positive && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-green-600">{data.positive}</div>
-                  <div className="text-sm text-green-700">Positive</div>
-                </div>
-              )}
-              {data.negative && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-red-600">{data.negative}</div>
-                  <div className="text-sm text-red-700">Negative</div>
-                </div>
-              )}
-              {data.neutral && (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <div className="text-2xl font-bold text-gray-600">{data.neutral}</div>
-                  <div className="text-sm text-gray-700">Neutral</div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium">Sentiment:</span>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  data.sentiment === 'positive' ? 'bg-green-100 text-green-800' :
+                  data.sentiment === 'negative' ? 'bg-red-100 text-red-800' :
+                  'bg-gray-100 text-gray-800'
+                }`}>
+                  {data.sentiment ? data.sentiment.charAt(0).toUpperCase() + data.sentiment.slice(1) : 'Unknown'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium">Confidence:</span>
+                <span className="text-sm">{Math.round((data.confidence || 0) * 100)}%</span>
+              </div>
+              {data.text && (
+                <div className="mt-3">
+                  <span className="font-medium">Analyzed Text:</span>
+                  <p className="text-sm text-gray-600 mt-1">{data.text}</p>
                 </div>
               )}
             </div>
@@ -52,39 +106,66 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">News Summary</h3>
-            <div className="space-y-3">
-              {data.articles?.map((article: any, index: number) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-2">{article.headline}</h4>
-                  <p className="text-gray-600 text-sm mb-2">{article.summary}</p>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span>{article.source}</span>
-                    <span>{formatTimestamp(article.published_at)}</span>
+            {data.articles && data.articles.length > 0 ? (
+              <div className="space-y-3">
+                {data.articles.map((article: Article, index: number) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-900 mb-2">{article.headline}</h4>
+                    <p className="text-gray-600 text-sm mb-2">{article.summary}</p>
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span>{article.source}</span>
+                      <span>{formatTimestamp(article.published_at)}</span>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-gray-500 italic">No articles found</div>
+            )}
           </div>
         );
 
-      case 'document_answer':
+      case 'knowledge_summary':
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Research Results</h3>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-gray-800">{data.answer}</p>
+              <p className="text-gray-800">{data.summary}</p>
             </div>
             {data.sources && data.sources.length > 0 && (
               <div>
                 <h4 className="font-medium text-gray-900 mb-2">Sources:</h4>
                 <ul className="space-y-1">
-                  {data.sources.map((source: any, index: number) => (
+                  {data.sources.map((source: Source, index: number) => (
                     <li key={index} className="text-sm text-gray-600">
-                      • {source.title} (Confidence: {Math.round(source.confidence * 100)}%)
+                      • {source.title} (Similarity: {Math.round(source.similarity_score * 100)}%)
                     </li>
                   ))}
                 </ul>
               </div>
+            )}
+          </div>
+        );
+
+      case 'research_results':
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Research Results</h3>
+            {data.documents && data.documents.length > 0 ? (
+              <div className="space-y-3">
+                {data.documents.map((doc: Document, index: number) => (
+                  <div key={index} className="border border-gray-200 rounded-lg p-4">
+                    <h4 className="font-medium text-gray-900 mb-2">{doc.title}</h4>
+                    <p className="text-gray-600 text-sm mb-2">{doc.content.substring(0, 200)}...</p>
+                    <div className="flex items-center justify-between text-xs text-gray-500">
+                      <span>{doc.source}</span>
+                      <span>Similarity: {Math.round(doc.similarity_score * 100)}%</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-gray-500 italic">No documents found</div>
             )}
           </div>
         );
@@ -98,7 +179,7 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
               </svg>
             </div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">System Initialized</h3>
-            <p className="text-gray-600">{data}</p>
+            <p className="text-gray-600">{String(data)}</p>
           </div>
         );
 
@@ -106,9 +187,17 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Results</h3>
-            <pre className="bg-gray-50 border border-gray-200 rounded-lg p-4 overflow-x-auto">
-              {JSON.stringify(data, null, 2)}
-            </pre>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              {data.error ? (
+                <div className="text-red-600">
+                  <strong>Error:</strong> {data.error}
+                </div>
+              ) : (
+                <pre className="overflow-x-auto text-sm">
+                  {JSON.stringify(data, null, 2)}
+                </pre>
+              )}
+            </div>
           </div>
         );
     }
@@ -121,7 +210,7 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Query Results</h2>
         <div className="flex items-center justify-between text-sm text-gray-600">
           <span className="font-medium">Query:</span>
-          <span className="italic">"{results.query}"</span>
+          <span className="italic">&ldquo;{results.query}&rdquo;</span>
         </div>
         {results.agents_used && results.agents_used.length > 0 && (
           <div className="flex items-center justify-between text-sm text-gray-600 mt-1">

@@ -7,7 +7,6 @@ import AgentStatus from '@/components/AgentStatus';
 import Header from '@/components/Header';
 
 export default function Home() {
-  const [query, setQuery] = useState('');
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -15,7 +14,6 @@ export default function Home() {
   const handleQuery = async (queryText: string) => {
     setLoading(true);
     setError('');
-    setQuery(queryText);
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/query`, {

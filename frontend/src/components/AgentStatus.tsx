@@ -7,7 +7,7 @@ interface Agent {
   status: string;
   description: string;
   last_used?: string;
-  performance_metrics?: any;
+  performance_metrics?: Record<string, unknown>;
 }
 
 export default function AgentStatus() {
@@ -25,8 +25,16 @@ export default function AgentStatus() {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
-      setAgents(Object.values(data.agents));
+      const data = await response.json() as { agents: Record<string, { status: string; description: string; last_used?: string; performance_metrics?: Record<string, unknown> }> };
+      // Convert object to array with name property
+      const agentsArray = Object.entries(data.agents).map(([name, agentData]) => ({
+        name,
+        status: agentData.status,
+        description: agentData.description,
+        last_used: agentData.last_used,
+        performance_metrics: agentData.performance_metrics
+      }));
+      setAgents(agentsArray);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch agent status');
     } finally {
@@ -44,6 +52,8 @@ export default function AgentStatus() {
         return 'bg-red-100 text-red-800';
       case 'not_implemented':
         return 'bg-yellow-100 text-yellow-800';
+      case 'unknown':
+        return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -61,6 +71,12 @@ export default function AgentStatus() {
         return (
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+          </svg>
+        );
+      case 'unknown':
+        return (
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
           </svg>
         );
       default:
@@ -126,14 +142,14 @@ export default function AgentStatus() {
           <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
               <h3 className="font-medium text-gray-900 capitalize">
-                {agent.name.replace('_', ' ')}
+                {agent.name?.replace('_', ' ') || 'Unknown Agent'}
               </h3>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(agent.status)}`}>
-                {getStatusIcon(agent.status)}
-                <span className="ml-1 capitalize">{agent.status.replace('_', ' ')}</span>
+              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(agent.status || 'unknown')}`}>
+                {getStatusIcon(agent.status || 'unknown')}
+                <span className="ml-1 capitalize">{(agent.status || 'unknown').replace('_', ' ')}</span>
               </span>
             </div>
-            <p className="text-sm text-gray-600 mb-3">{agent.description}</p>
+            <p className="text-sm text-gray-600 mb-3">{agent.description || 'No description available'}</p>
             {agent.last_used && (
               <div className="text-xs text-gray-500">
                 Last used: {new Date(agent.last_used).toLocaleString()}
