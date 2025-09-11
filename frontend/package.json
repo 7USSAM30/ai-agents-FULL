@@ -1,7 +1,7 @@
 {
   "name": "multi-agent-ai-frontend",
   "version": "2.0.0",
-  "description": "Frontend for Multi-Agent AI System with GPT-5 integration",
+  "description": "Frontend for Multi-Agent AI System with GPT-5 integration, featuring cyberpunk Matrix-style UI with letter glitch background",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -46,7 +46,13 @@
     "nextjs",
     "react",
     "typescript",
-    "tailwindcss"
+    "tailwindcss",
+    "threejs",
+    "postprocessing",
+    "letter-glitch",
+    "cyberpunk",
+    "matrix",
+    "glass-morphism"
   ],
   "author": "Multi-Agent AI System",
   "license": "MIT"
