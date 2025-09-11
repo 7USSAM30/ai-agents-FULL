@@ -294,6 +294,17 @@ class ResearchAgent:
         Returns:
             Knowledge summary with sources
         """
+        # If Weaviate is not configured, provide a helpful response
+        if not self.client:
+            return {
+                "type": "knowledge_summary",
+                "summary": f"I understand you're asking about '{query}'. While I don't have access to a vector database for document retrieval, I can still help you with research. To enable full document search capabilities, please configure Weaviate in your environment variables.",
+                "sources": [],
+                "query": query,
+                "status": "limited_mode",
+                "suggestion": "Configure WEAVIATE_URL and WEAVIATE_API_KEY in your .env file to enable full document search"
+            }
+        
         # Search for relevant documents
         search_results = await self.search_documents(query, limit=10)
         
@@ -346,13 +357,14 @@ class ResearchAgent:
         
         return {
             "name": "research_agent",
-            "status": "active" if is_connected else "inactive",
-            "description": "RAG with document retrieval and vector search",
+            "status": "active" if is_connected else "limited_mode",
+            "description": "RAG with document retrieval and vector search" if is_connected else "Research agent in limited mode (Weaviate not configured)",
             "last_used": datetime.now().isoformat(),
             "performance_metrics": {
                 "weaviate_connected": is_connected,
                 "documents_stored": document_count,
                 "openai_configured": bool(self.openai_api_key),
-                "supported_formats": ["text", "web", "pdf"]
+                "supported_formats": ["text", "web", "pdf"] if is_connected else ["basic_research"],
+                "configuration_needed": not is_connected
             }
         }
