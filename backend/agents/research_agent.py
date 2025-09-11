@@ -44,20 +44,24 @@ class ResearchAgent:
                 weaviate_url = f"https://{weaviate_url}"
             
             # Initialize Weaviate client with timeout and error handling
-            self.client = weaviate.Client(
-                url=weaviate_url,
-                auth_client_secret=weaviate.AuthApiKey(api_key=self.weaviate_api_key),
-                additional_headers={
-                    "X-OpenAI-Api-Key": self.openai_api_key
-                } if self.openai_api_key else {}
+            # Using v4 client syntax
+            from weaviate.classes.init import Auth
+            self.client = weaviate.connect_to_weaviate_cloud(
+                cluster_url=weaviate_url,
+                auth_credentials=Auth.api_key(self.weaviate_api_key),
+                skip_init_checks=True,
+                headers={"X-OpenAI-Api-Key": self.openai_api_key} if self.openai_api_key else None
             )
             
             
             # Test connection before creating schema
-            self.client.schema.get()
-            
-            # Create schema if it doesn't exist
-            self._create_schema()
+            if self.client.is_ready():
+                print("✅ Connected to Weaviate successfully!")
+                # Create schema if it doesn't exist
+                self._create_schema()
+            else:
+                print("❌ Failed to connect to Weaviate")
+                self.client = None
             
         except Exception as e:
             print(f"Warning: Could not connect to Weaviate: {e}")
@@ -72,57 +76,28 @@ class ResearchAgent:
             return
             
         try:
-            # Check if class already exists
-            if self.client.schema.exists(self.class_name):
+            # Check if class already exists (v4 syntax)
+            existing_classes = self.client.collections.list_all()
+            if self.class_name in existing_classes:
+                print(f"Schema {self.class_name} already exists")
                 return
                 
-            # Define the schema
-            schema = {
-                "class": self.class_name,
-                "description": "Research documents for RAG functionality",
-                "vectorizer": "text2vec-openai" if self.openai_api_key else "none",
-                "moduleConfig": {
-                    "text2vec-openai": {
-                        "model": "ada",
-                        "modelVersion": "002",
-                        "type": "text"
-                    } if self.openai_api_key else {}
-                },
-                "properties": [
-                    {
-                        "name": "title",
-                        "dataType": ["text"],
-                        "description": "Document title"
-                    },
-                    {
-                        "name": "content",
-                        "dataType": ["text"],
-                        "description": "Document content"
-                    },
-                    {
-                        "name": "source",
-                        "dataType": ["text"],
-                        "description": "Document source URL or file path"
-                    },
-                    {
-                        "name": "document_type",
-                        "dataType": ["text"],
-                        "description": "Type of document (pdf, txt, web, etc.)"
-                    },
-                    {
-                        "name": "uploaded_at",
-                        "dataType": ["date"],
-                        "description": "When the document was uploaded"
-                    },
-                    {
-                        "name": "metadata",
-                        "dataType": ["text"],
-                        "description": "Additional metadata as JSON string"
-                    }
-                ]
-            }
+            # Create collection with v4 syntax
+            from weaviate.classes.config import Property, DataType, Configure
             
-            self.client.schema.create_class(schema)
+            self.client.collections.create(
+                name=self.class_name,
+                description="Research documents for RAG functionality",
+                properties=[
+                    Property(name="title", data_type=DataType.TEXT, description="Document title"),
+                    Property(name="content", data_type=DataType.TEXT, description="Document content"),
+                    Property(name="source", data_type=DataType.TEXT, description="Document source URL or file path"),
+                    Property(name="document_type", data_type=DataType.TEXT, description="Type of document (pdf, txt, web, etc.)"),
+                    Property(name="uploaded_at", data_type=DataType.DATE, description="When the document was uploaded"),
+                    Property(name="metadata", data_type=DataType.TEXT, description="Additional metadata as JSON string")
+                ],
+                vectorizer_config=Configure.Vectorizer.text2vec_openai() if self.openai_api_key else None
+            )
             print(f"Created Weaviate schema for {self.class_name}")
             
         except Exception as e:
@@ -157,11 +132,9 @@ class ResearchAgent:
                 "metadata": json.dumps(metadata or {})
             }
             
-            # Add to Weaviate
-            result = self.client.data_object.create(
-                data_object=document_data,
-                class_name=self.class_name
-            )
+            # Add to Weaviate (v4 syntax)
+            collection = self.client.collections.get(self.class_name)
+            result = collection.data.insert(document_data)
             
             return result is not None
             
@@ -191,33 +164,30 @@ class ResearchAgent:
             }
         
         try:
-            # Perform vector search
-            result = (
-                self.client.query
-                .get(self.class_name, ["title", "content", "source", "document_type", "metadata"])
-                .with_near_text({"concepts": [query]})
-                .with_limit(limit)
-                .with_additional(["certainty", "id"])
-                .do()
+            # Perform vector search (v4 syntax)
+            collection = self.client.collections.get(self.class_name)
+            result = collection.query.near_text(
+                query=query,
+                limit=limit,
+                return_metadata=["certainty"]
             )
             
-            # Process results
+            # Process results (v4 syntax)
             documents = []
-            if "data" in result and "Get" in result["data"]:
-                for item in result["data"]["Get"][self.class_name]:
-                    certainty = item.get("_additional", {}).get("certainty", 0)
-                    
-                    # Filter by similarity threshold
-                    if certainty >= similarity_threshold:
-                        doc = {
-                            "title": item.get("title", ""),
-                            "content": item.get("content", ""),
-                            "source": item.get("source", ""),
-                            "document_type": item.get("document_type", ""),
-                            "similarity_score": certainty,
-                            "metadata": json.loads(item.get("metadata", "{}"))
-                        }
-                        documents.append(doc)
+            for item in result.objects:
+                certainty = item.metadata.certainty if item.metadata else 0
+                
+                # Filter by similarity threshold
+                if certainty >= similarity_threshold:
+                    doc = {
+                        "title": item.properties.get("title", ""),
+                        "content": item.properties.get("content", ""),
+                        "source": item.properties.get("source", ""),
+                        "document_type": item.properties.get("document_type", ""),
+                        "similarity_score": certainty,
+                        "metadata": json.loads(item.properties.get("metadata", "{}"))
+                    }
+                    documents.append(doc)
             
             return {
                 "type": "research_results",
@@ -345,13 +315,13 @@ class ResearchAgent:
         """
         is_connected = self.client is not None
         
-        # Get document count if connected
+        # Get document count if connected (v4 syntax)
         document_count = 0
         if is_connected:
             try:
-                result = self.client.query.aggregate(self.class_name).with_meta_count().do()
-                if "data" in result and "Aggregate" in result["data"]:
-                    document_count = result["data"]["Aggregate"][self.class_name][0]["meta"]["count"]
+                collection = self.client.collections.get(self.class_name)
+                result = collection.aggregate.over_all(total_count=True)
+                document_count = result.total_count
             except:
                 pass
         

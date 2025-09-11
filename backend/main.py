@@ -22,6 +22,7 @@ from agents.frontend_agent import FrontendAgent
 from agents.langgraph_orchestrator import LangGraphOrchestrator, WorkflowConfig
 from agents.documentation_agent import DocumentationAgent
 from agents.caching_agent import CachingAgent, CacheConfig
+from agents.learning_agent import LearningAgent
 
 # Load environment variables
 load_dotenv()
@@ -50,6 +51,7 @@ summarizer_agent = SummarizerAgent()
 decision_agent = DecisionAgent()
 frontend_agent = FrontendAgent()
 documentation_agent = DocumentationAgent()
+learning_agent = LearningAgent()
 
 # Initialize Caching Agent
 cache_config = CacheConfig(
@@ -166,17 +168,18 @@ async def process_query(query_data: Dict[str, Any]):
         if not query:
             raise HTTPException(status_code=400, detail="Query is required")
         
-        # Check cache first
-        cached_result = await caching_agent.get_cached_query_result(query)
-        if cached_result:
-            return {
-                "query": query,
-                "agents_used": ["caching_agent"],
-                "processing_time": 0.0,
-                "timestamp": datetime.now().isoformat(),
-                "result": cached_result,
-                "cached": True
-            }
+        # Check cache first (but skip for sentiment queries to ensure fresh analysis)
+        if not any(keyword in query.lower() for keyword in ["sentiment", "emotion", "feeling", "mood", "opinion", "attitude", "analyze"]):
+            cached_result = await caching_agent.get_cached_query_result(query)
+            if cached_result:
+                return {
+                    "query": query,
+                    "agents_used": ["caching_agent"],
+                    "processing_time": 0.0,
+                    "timestamp": datetime.now().isoformat(),
+                    "result": cached_result,
+                    "cached": True
+                }
         
         # Use LangGraph Orchestrator if requested
         if use_orchestrator:
@@ -198,6 +201,11 @@ async def process_query(query_data: Dict[str, Any]):
         
         query_analysis = coordination_plan["query_analysis"]
         execution_plan = coordination_plan["execution_plan"]
+        
+        # For sentiment queries, prioritize sentiment agent only
+        if query_analysis.intent.value == "sentiment":
+            execution_plan = [{"agent": "sentiment_agent", "priority": 1}]
+            print(f"🎯 Sentiment query detected - running sentiment agent only")
     
         # Execute agents based on decision agent coordination plan
         if coordination_plan["parallel_execution"]:
@@ -258,18 +266,45 @@ async def process_query(query_data: Dict[str, Any]):
                 except Exception as e:
                     print(f"{agent_name} error: {e}")
         
-        # Use Summarizer Agent to combine results
+        # Use Summarizer Agent to combine results (but prioritize sentiment results)
         if agent_results:
-            try:
-                result = await summarizer_agent.summarize_results(query, agent_results)
-                agents_used.append("summarizer_agent")
-            except Exception as e:
-                print(f"Summarizer Agent error: {e}")
-                # Fallback to first available result
-                result = agent_results[0]["result"] if agent_results else {
-                    "type": "error",
-                    "error": "No agents were able to process the query"
-                }
+            # Check if we have a sentiment result and prioritize it
+            sentiment_result = None
+            for agent_result in agent_results:
+                if agent_result["agent_type"] == "sentiment_agent" and agent_result["result"].get("type") == "sentiment_analysis":
+                    sentiment_result = agent_result["result"]
+                    break
+            
+            if sentiment_result:
+                # Use sentiment result directly for sentiment queries
+                result = sentiment_result
+                print(f"🎯 Using sentiment result: {sentiment_result.get('sentiment')} (confidence: {sentiment_result.get('confidence')})")
+            else:
+                # Use summarizer for other types of queries
+                try:
+                    result = await summarizer_agent.summarize_results(query, agent_results)
+                    agents_used.append("summarizer_agent")
+                except Exception as e:
+                    print(f"Summarizer Agent error: {e}")
+                    # Fallback to first available result
+                    result = agent_results[0]["result"] if agent_results else {
+                        "type": "error",
+                        "error": "No agents were able to process the query"
+                    }
+        else:
+            result = {
+                "type": "error",
+                "error": "No agents were able to process the query"
+            }
+        
+        # Learn from this query (run in background)
+        try:
+            learning_result = await learning_agent.learn_from_query(query, max_articles=3)
+            if learning_result.get("learning_successful"):
+                print(f"🧠 Learned from query: {learning_result['articles_stored']} articles stored")
+                agents_used.append("learning_agent")
+        except Exception as e:
+            print(f"Learning Agent error: {e}")
         
         # Use Frontend Agent to format response for UI
         try:
@@ -286,8 +321,9 @@ async def process_query(query_data: Dict[str, Any]):
         except Exception as e:
             print(f"Frontend Agent error: {e}")
             # Continue without formatting
-        else:
-            # Fallback: Try to get at least one result from any agent
+        
+        # If no agents returned results, try fallback
+        if not agent_results:
             print("No agents returned results, trying fallback...")
             try:
                 # Try research agent as fallback
@@ -361,7 +397,8 @@ async def get_agents_status():
         "summarizer_agent": summarizer_status,
         "frontend_agent": await frontend_agent.get_agent_status(),
         "documentation_agent": await documentation_agent.get_agent_status(),
-        "caching_agent": await caching_agent.get_agent_status()
+        "caching_agent": await caching_agent.get_agent_status(),
+        "learning_agent": await learning_agent.get_agent_status()
     }
     
     return {
@@ -651,6 +688,24 @@ async def warm_cache(warm_data: Dict[str, Any]):
     }
     
     result = await caching_agent.warm_cache(queries, agents)
+    return result
+
+# Learning Agent endpoints
+@app.get("/learning/stats")
+async def get_learning_stats():
+    """Get learning statistics"""
+    return await learning_agent.get_learning_stats()
+
+@app.post("/learning/learn")
+async def manual_learn(learn_data: Dict[str, Any]):
+    """Manually trigger learning from a query"""
+    query = learn_data.get("query", "")
+    max_articles = learn_data.get("max_articles", 5)
+    
+    if not query:
+        raise HTTPException(status_code=400, detail="Query is required")
+    
+    result = await learning_agent.learn_from_query(query, max_articles)
     return result
 
 if __name__ == "__main__":

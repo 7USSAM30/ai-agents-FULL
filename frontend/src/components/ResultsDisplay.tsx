@@ -94,26 +94,26 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
       case 'sentiment_analysis':
         return (
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Sentiment Analysis</h3>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Sentiment Analysis</h3>
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">Sentiment:</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">Sentiment:</span>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  data.sentiment === 'positive' ? 'bg-green-100 text-green-800' :
-                  data.sentiment === 'negative' ? 'bg-red-100 text-red-800' :
-                  'bg-gray-100 text-gray-800'
+                  data.sentiment === 'positive' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' :
+                  data.sentiment === 'negative' ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200' :
+                  'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
                 }`}>
                   {data.sentiment ? data.sentiment.charAt(0).toUpperCase() + data.sentiment.slice(1) : 'Unknown'}
                 </span>
               </div>
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">Confidence:</span>
-                <span className="text-sm">{Math.round((data.confidence || 0) * 100)}%</span>
+                <span className="font-medium text-gray-900 dark:text-gray-100">Confidence:</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">{Math.round((data.confidence || 0) * 100)}%</span>
               </div>
               {data.text && (
                 <div className="mt-3">
-                  <span className="font-medium">Analyzed Text:</span>
-                  <p className="text-sm text-gray-600 mt-1">{data.text}</p>
+                  <span className="font-medium text-gray-900 dark:text-gray-100">Analyzed Text:</span>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{data.text}</p>
                 </div>
               )}
             </div>
@@ -267,6 +267,37 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
           </div>
         );
 
+      case 'learning_result':
+        return (
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-gray-900">Learning Progress</h3>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium">Articles Fetched:</span>
+                <span className="text-sm font-bold text-green-800">{String(data.articles_fetched || 0)}</span>
+              </div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium">Articles Stored:</span>
+                <span className="text-sm font-bold text-green-800">{String(data.articles_stored || 0)}</span>
+              </div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium">Learning Status:</span>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  data.learning_successful ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {data.learning_successful ? 'Successful' : 'In Progress'}
+                </span>
+              </div>
+              {data.reason ? (
+                <div className="mt-3">
+                  <span className="font-medium">Note:</span>
+                  <p className="text-sm text-gray-600 mt-1">{String(data.reason)}</p>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        );
+
       case 'placeholder':
         return (
           <div className="text-center py-8">
@@ -303,26 +334,26 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
   return (
     <div className="space-y-6">
       {/* Query Info */}
-      <div className="border-b border-gray-200 pb-4">
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Query Results</h2>
-        <div className="flex items-center justify-between text-sm text-gray-600">
+      <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Query Results</h2>
+        <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
           <span className="font-medium">Query:</span>
           <span className="italic">&ldquo;{results.query}&rdquo;</span>
         </div>
         {results.agents_used && results.agents_used.length > 0 && (
-          <div className="flex items-center justify-between text-sm text-gray-600 mt-1">
+          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mt-1">
             <span className="font-medium">Agents Used:</span>
             <span>{results.agents_used.join(', ')}</span>
           </div>
         )}
         {results.processing_time && (
-          <div className="flex items-center justify-between text-sm text-gray-600 mt-1">
+          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mt-1">
             <span className="font-medium">Processing Time:</span>
             <span>{results.processing_time.toFixed(2)}s</span>
           </div>
         )}
         {results.timestamp && (
-          <div className="flex items-center justify-between text-sm text-gray-600 mt-1">
+          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mt-1">
             <span className="font-medium">Timestamp:</span>
             <span>{formatTimestamp(results.timestamp)}</span>
           </div>

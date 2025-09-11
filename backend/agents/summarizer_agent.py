@@ -180,7 +180,7 @@ class SummarizerAgent:
                         "Content-Type": "application/json"
                     },
                     json={
-                        "model": "gpt-5",
+                        "model": "gpt-4o",
                         "messages": [
                             {"role": "user", "content": prompt}
                         ],

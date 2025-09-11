@@ -67,7 +67,7 @@ class DecisionAgent:
                 name="Sentiment Agent",
                 description="Analyzes sentiment, emotions, and opinions in text",
                 keywords=["sentiment", "emotion", "feeling", "mood", "opinion", "attitude", "analyze", "analysis", "positive", "negative"],
-                max_complexity=QueryComplexity.SIMPLE,
+                max_complexity=QueryComplexity.COMPLEX,
                 priority=3
             )
         }
@@ -184,13 +184,13 @@ class DecisionAgent:
         try:
             client = openai.OpenAI(api_key=self.openai_api_key)
             response = client.chat.completions.create(
-                model="gpt-5",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": "Analyze the query intent. Return only one of: news, research, sentiment, multi_agent, unknown"},
                     {"role": "user", "content": f"Query: {query}"}
                 ],
                 max_completion_tokens=50,
-                temperature=0.1
+                temperature=1.0
             )
             
             intent_str = response.choices[0].message.content.strip().lower()
@@ -246,7 +246,7 @@ class DecisionAgent:
         """Suggest appropriate agents based on intent and complexity."""
         suggestions = []
         
-        # Intent-based suggestions
+        # Intent-based suggestions (priority)
         if intent == QueryIntent.NEWS:
             suggestions.append("news_agent")
         elif intent == QueryIntent.RESEARCH:
@@ -256,9 +256,9 @@ class DecisionAgent:
         elif intent == QueryIntent.MULTI_AGENT:
             suggestions = ["news_agent", "research_agent", "sentiment_agent"]
         
-        # Keyword-based suggestions
-        for agent_name, capability in self.agent_capabilities.items():
-            if agent_name not in suggestions:
+        # Keyword-based suggestions (only if no intent-based suggestions)
+        if not suggestions:
+            for agent_name, capability in self.agent_capabilities.items():
                 for keyword in keywords:
                     if keyword in capability.keywords:
                         suggestions.append(agent_name)

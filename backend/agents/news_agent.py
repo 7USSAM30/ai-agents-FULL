@@ -21,15 +21,53 @@ class NewsAgent:
         self.api_key = os.getenv("NEWS_API_KEY")
         self.base_url = "https://newsapi.org/v2"
         self.tech_keywords = [
-            "artificial intelligence", "AI", "machine learning", "ML",
-            "technology", "tech", "software", "programming", "coding",
-            "startup", "innovation", "digital", "cyber", "data science",
-            "blockchain", "cryptocurrency", "bitcoin", "ethereum",
-            "cloud computing", "AWS", "Azure", "Google Cloud",
-            "mobile app", "iOS", "Android", "React", "Python", "JavaScript",
-            "automation", "robotics", "IoT", "internet of things",
-            "virtual reality", "VR", "augmented reality", "AR",
-            "quantum computing", "5G", "edge computing"
+            # AI & Machine Learning
+            "artificial intelligence", "AI", "machine learning", "ML", "deep learning",
+            "neural networks", "computer vision", "natural language processing", "NLP",
+            "GPT", "ChatGPT", "OpenAI", "generative AI", "LLM", "large language model",
+            
+            # Technology & Software
+            "technology", "tech", "software", "programming", "coding", "development",
+            "startup", "innovation", "digital", "cyber", "cybersecurity", "data science",
+            "big data", "analytics", "database", "API", "web development",
+            
+            # Programming Languages & Frameworks
+            "Python", "JavaScript", "Java", "C++", "C#", "React", "Vue", "Angular",
+            "Node.js", "Django", "Flask", "Spring", "Laravel", "PHP", "Ruby",
+            "Swift", "Kotlin", "Go", "Rust", "TypeScript", "HTML", "CSS",
+            
+            # Cloud & Infrastructure
+            "cloud computing", "AWS", "Azure", "Google Cloud", "GCP", "Docker",
+            "Kubernetes", "DevOps", "CI/CD", "microservices", "serverless",
+            "edge computing", "distributed systems", "scalability",
+            
+            # Mobile & Web
+            "mobile app", "iOS", "Android", "React Native", "Flutter", "Xamarin",
+            "web app", "responsive design", "PWA", "mobile development",
+            
+            # Emerging Technologies
+            "blockchain", "cryptocurrency", "bitcoin", "ethereum", "Web3", "DeFi",
+            "NFT", "smart contracts", "virtual reality", "VR", "augmented reality", "AR",
+            "metaverse", "IoT", "internet of things", "smart home", "automation",
+            "robotics", "quantum computing", "5G", "6G", "autonomous vehicles",
+            "self-driving", "Tesla", "electric vehicles", "EV",
+            
+            # Companies & Platforms
+            "Google", "Microsoft", "Meta", "Facebook", "Apple", "Amazon", "Netflix",
+            "Twitter", "X", "LinkedIn", "GitHub", "GitLab", "Slack", "Discord",
+            "Zoom", "Teams", "Spotify", "YouTube", "TikTok", "Instagram",
+            
+            # Gaming & Entertainment
+            "gaming", "video games", "esports", "streaming", "Twitch", "Steam",
+            "PlayStation", "Xbox", "Nintendo", "Unity", "Unreal Engine",
+            
+            # Business & Finance Tech
+            "fintech", "payments", "digital banking", "cryptocurrency", "trading",
+            "investment", "venture capital", "IPO", "startup funding",
+            
+            # Health & Biotech
+            "healthtech", "biotech", "medical technology", "telemedicine",
+            "digital health", "wearables", "fitness tech", "health monitoring"
         ]
         
     async def fetch_tech_news(self, query: str = "technology", max_articles: int = 10) -> Dict[str, Any]:
@@ -65,7 +103,8 @@ class NewsAgent:
             endpoints = [
                 f"/everything?q={tech_query}&sortBy=publishedAt&pageSize={max_articles}",
                 f"/top-headlines?category=technology&pageSize={max_articles}",
-                f"/everything?q=AI OR artificial intelligence&sortBy=publishedAt&pageSize={max_articles//2}"
+                f"/everything?q=technology OR tech OR software&sortBy=publishedAt&pageSize={max_articles//2}",
+                f"/everything?q=startup OR innovation OR programming&sortBy=publishedAt&pageSize={max_articles//2}"
             ]
             
             async with httpx.AsyncClient() as client:
@@ -117,12 +156,14 @@ class NewsAgent:
         """
         Build a technology-focused search query
         """
+        query_lower = query.lower()
+        
         # If query is already tech-focused, use it as is
-        if any(keyword.lower() in query.lower() for keyword in self.tech_keywords):
+        if any(keyword.lower() in query_lower for keyword in self.tech_keywords):
             return query
         
-        # Otherwise, add tech context
-        tech_context = "technology OR tech OR AI OR artificial intelligence"
+        # Otherwise, add comprehensive tech context
+        tech_context = "technology OR tech OR software OR programming OR AI OR artificial intelligence OR machine learning OR startup OR innovation OR digital"
         return f"({query}) AND ({tech_context})"
     
     def _deduplicate_articles(self, articles: List[Dict]) -> List[Dict]:
@@ -151,9 +192,14 @@ class NewsAgent:
         tech_articles = []
         
         for article in articles:
-            title = article.get("title", "").lower()
-            description = article.get("description", "").lower()
-            content = article.get("content", "").lower()
+            title = article.get("title", "") or ""
+            description = article.get("description", "") or ""
+            content = article.get("content", "") or ""
+            
+            # Convert to lowercase safely
+            title = title.lower() if title else ""
+            description = description.lower() if description else ""
+            content = content.lower() if content else ""
             
             # Check if article contains tech keywords
             text_to_check = f"{title} {description} {content}"
@@ -195,9 +241,14 @@ class NewsAgent:
         """
         Calculate relevance score for technology content
         """
-        title = article.get("title", "").lower()
-        description = article.get("description", "").lower()
-        content = article.get("content", "").lower()
+        title = article.get("title", "") or ""
+        description = article.get("description", "") or ""
+        content = article.get("content", "") or ""
+        
+        # Convert to lowercase safely
+        title = title.lower() if title else ""
+        description = description.lower() if description else ""
+        content = content.lower() if content else ""
         
         text = f"{title} {description} {content}"
         

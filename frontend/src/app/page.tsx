@@ -91,7 +91,7 @@ export default function Home() {
                 Multi-Agent AI System
               </h1>
               <p className="text-xl text-cyan-200 mb-8 drop-shadow-lg max-w-2xl mx-auto leading-relaxed">
-                Ask questions and get intelligent responses from our specialized AI agents
+                Ask questions and get intelligent responses from our specialized AI agents. The system learns from every technology-related query!
               </p>
             </div>
 
@@ -114,7 +114,7 @@ export default function Home() {
               <QueryInput 
                 onQuery={handleQuery} 
                 loading={loading}
-                placeholder="Ask about AI news, research documents, or sentiment analysis..."
+                placeholder="Ask about any technology topic - AI, programming, blockchain, gaming, startups, etc. The system learns from every query!"
               />
             </div>
 

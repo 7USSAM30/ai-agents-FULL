@@ -46,6 +46,8 @@ export default function AgentStatus() {
     switch (status) {
       case 'active':
         return 'bg-green-900/50 text-green-300 border border-green-500/30';
+      case 'limited_mode':
+        return 'bg-blue-900/50 text-blue-300 border border-blue-500/30';
       case 'inactive':
         return 'bg-gray-800/50 text-gray-300 border border-gray-500/30';
       case 'error':
@@ -65,6 +67,12 @@ export default function AgentStatus() {
         return (
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+          </svg>
+        );
+      case 'limited_mode':
+        return (
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
           </svg>
         );
       case 'error':
@@ -160,7 +168,8 @@ export default function AgentStatus() {
       </div>
 
       <div className="text-sm text-cyan-300/70 text-center">
-        <p>All agents are ready for implementation in Phase 2 of the roadmap</p>
+        <p>🧠 Learning Agent automatically learns from technology queries and builds knowledge over time</p>
+        <p className="mt-2">All agents are active and ready to help with your technology questions!</p>
       </div>
     </div>
   );
