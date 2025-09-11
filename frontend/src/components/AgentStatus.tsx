@@ -45,17 +45,17 @@ export default function AgentStatus() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-900/50 text-green-300 border border-green-500/30';
       case 'inactive':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-800/50 text-gray-300 border border-gray-500/30';
       case 'error':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-900/50 text-red-300 border border-red-500/30';
       case 'not_implemented':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-900/50 text-yellow-300 border border-yellow-500/30';
       case 'unknown':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-800/50 text-gray-300 border border-gray-500/30';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-800/50 text-gray-300 border border-gray-500/30';
     }
   };
 
@@ -90,10 +90,10 @@ export default function AgentStatus() {
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-gray-900">Agent Status</h2>
-        <div className="flex items-center justify-center py-8">
-          <svg className="animate-spin h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24">
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold text-cyan-300">Agent Status</h2>
+        <div className="flex items-center justify-center py-12">
+          <svg className="animate-spin h-8 w-8 text-cyan-400" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
@@ -104,18 +104,18 @@ export default function AgentStatus() {
 
   if (error) {
     return (
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-gray-900">Agent Status</h2>
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold text-cyan-300">Agent Status</h2>
+        <div className="bg-red-900/50 border border-red-500/30 rounded-xl p-6 backdrop-blur-sm">
           <div className="flex">
             <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <svg className="h-6 w-6 text-red-400" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
               </svg>
             </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-red-800">Error loading agent status</h3>
-              <div className="mt-2 text-sm text-red-700">
+            <div className="ml-4">
+              <h3 className="text-lg font-semibold text-red-300">Error loading agent status</h3>
+              <div className="mt-2 text-red-200">
                 <p>{error}</p>
               </div>
             </div>
@@ -126,32 +126,32 @@ export default function AgentStatus() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-gray-900">Agent Status</h2>
+        <h2 className="text-2xl font-bold text-cyan-300">Agent Status</h2>
         <button
           onClick={fetchAgentStatus}
-          className="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+          className="text-sm text-cyan-400 hover:text-cyan-300 transition-all duration-300 font-medium"
         >
           Refresh
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {agents.map((agent, index) => (
-          <div key={index} className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-medium text-gray-900 capitalize">
+          <div key={index} className="bg-black/50 border border-cyan-500/20 rounded-xl p-6 backdrop-blur-sm shadow-lg">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-cyan-200 capitalize text-lg">
                 {agent.name?.replace('_', ' ') || 'Unknown Agent'}
               </h3>
-              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(agent.status || 'unknown')}`}>
+              <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium ${getStatusColor(agent.status || 'unknown')}`}>
                 {getStatusIcon(agent.status || 'unknown')}
-                <span className="ml-1 capitalize">{(agent.status || 'unknown').replace('_', ' ')}</span>
+                <span className="ml-2 capitalize">{(agent.status || 'unknown').replace('_', ' ')}</span>
               </span>
             </div>
-            <p className="text-sm text-gray-600 mb-3">{agent.description || 'No description available'}</p>
+            <p className="text-sm text-cyan-100/80 mb-4 leading-relaxed">{agent.description || 'No description available'}</p>
             {agent.last_used && (
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-cyan-300/60 font-medium">
                 Last used: {new Date(agent.last_used).toLocaleString()}
               </div>
             )}
@@ -159,7 +159,7 @@ export default function AgentStatus() {
         ))}
       </div>
 
-      <div className="text-sm text-gray-500 text-center">
+      <div className="text-sm text-cyan-300/70 text-center">
         <p>All agents are ready for implementation in Phase 2 of the roadmap</p>
       </div>
     </div>

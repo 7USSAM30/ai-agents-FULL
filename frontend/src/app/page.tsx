@@ -5,6 +5,7 @@ import QueryInput from '@/components/QueryInput';
 import ResultsDisplay from '@/components/ResultsDisplay';
 import AgentStatus from '@/components/AgentStatus';
 import Header from '@/components/Header';
+import LetterGlitch from '@/components/LetterGlitch';
 
 export default function Home() {
   const [results, setResults] = useState(null);
@@ -65,76 +66,91 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <div className="min-h-screen relative">
+      {/* Letter Glitch Background */}
+      <div className="fixed inset-0 z-0">
+        <LetterGlitch 
+          glitchColors={['#2b4539', '#61dca3', '#61b3dc']}
+          glitchSpeed={50}
+          centerVignette={false}
+          outerVignette={true}
+          smooth={true}
+          characters="ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$&*()-_+=/[]{};:<>.,0123456789"
+        />
+      </div>
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* Hero Section */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Multi-Agent AI System
-            </h1>
-            <p className="text-xl text-gray-600 mb-8">
-              Ask questions and get intelligent responses from our specialized AI agents
-            </p>
-          </div>
-
-          {/* Query Input */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Ask a Question</h2>
-              <button
-                onClick={clearCache}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-              >
-                Clear Cache
-              </button>
+      {/* Content Overlay */}
+      <div className="relative z-10">
+        <Header />
+        
+        <main className="container mx-auto px-6 py-12">
+          <div className="max-w-5xl mx-auto space-y-8">
+            {/* Hero Section */}
+            <div className="text-center mb-16">
+              <h1 className="text-5xl font-bold text-white mb-6 drop-shadow-2xl tracking-wide">
+                Multi-Agent AI System
+              </h1>
+              <p className="text-xl text-cyan-200 mb-8 drop-shadow-lg max-w-2xl mx-auto leading-relaxed">
+                Ask questions and get intelligent responses from our specialized AI agents
+              </p>
             </div>
-            {cacheCleared && (
-              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-800 text-sm">✅ Cache cleared successfully!</p>
-              </div>
-            )}
-            <QueryInput 
-              onQuery={handleQuery} 
-              loading={loading}
-              placeholder="Ask about AI news, research documents, or sentiment analysis..."
-            />
-          </div>
 
-          {/* Error Display */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
+            {/* Query Input */}
+            <div className="bg-black/80 backdrop-blur-md rounded-xl shadow-2xl border border-cyan-500/20 p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-cyan-300">Ask a Question</h2>
+                <button
+                  onClick={clearCache}
+                  className="px-6 py-3 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-all duration-300 text-sm font-medium shadow-lg hover:shadow-cyan-500/25"
+                >
+                  Clear Cache
+                </button>
+              </div>
+              {cacheCleared && (
+                <div className="mb-6 p-4 bg-green-900/50 border border-green-500/30 rounded-lg backdrop-blur-sm">
+                  <p className="text-green-300 text-sm font-medium">✅ Cache cleared successfully!</p>
                 </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">Error</h3>
-                  <div className="mt-2 text-sm text-red-700">
-                    <p>{error}</p>
+              )}
+              <QueryInput 
+                onQuery={handleQuery} 
+                loading={loading}
+                placeholder="Ask about AI news, research documents, or sentiment analysis..."
+              />
+            </div>
+
+            {/* Error Display */}
+            {error && (
+              <div className="bg-red-900/50 backdrop-blur-md border border-red-500/30 rounded-xl p-6 shadow-2xl">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-6 w-6 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-4">
+                    <h3 className="text-lg font-semibold text-red-300">Error</h3>
+                    <div className="mt-2 text-red-200">
+                      <p>{error}</p>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Results Display */}
-          {results && (
-            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-              <ResultsDisplay results={results} />
-            </div>
-          )}
+            {/* Results Display */}
+            {results && (
+              <div className="bg-black/80 backdrop-blur-md rounded-xl shadow-2xl border border-cyan-500/20 p-8">
+                <ResultsDisplay results={results} />
+              </div>
+            )}
 
-          {/* Agent Status */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <AgentStatus />
+            {/* Agent Status */}
+            <div className="bg-black/80 backdrop-blur-md rounded-xl shadow-2xl border border-cyan-500/20 p-8">
+              <AgentStatus />
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
