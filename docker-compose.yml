@@ -3,20 +3,25 @@ version: '3.9'
 services:
   # Backend Service
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: multi-agent-backend
     ports:
       - "8000:8000"
     environment:
-      - ENVIRONMENT=development
-      - DEBUG=true
+      - ENVIRONMENT=production
+      - DEBUG=false
       - LOG_LEVEL=info
-      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,https://yourdomain.com
+      - WORKERS=4
+      - MAX_REQUESTS=1000
+      - MAX_REQUESTS_JITTER=100
     env_file:
       - ./backend/.env
     volumes:
-      - ./backend:/app
-      - /app/__pycache__
+      - cache_data:/app/cache
+      - docs_data:/app/docs
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -26,18 +31,30 @@ services:
       start_period: 40s
     networks:
       - multi-agent-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
 
   # Frontend Service
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: multi-agent-frontend
     ports:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_URL=http://backend:8000
       - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
@@ -47,6 +64,14 @@ services:
       start_period: 40s
     networks:
       - multi-agent-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
 
   # Optional: PostgreSQL Database (uncomment if needed)
   # postgres:
@@ -78,5 +103,9 @@ networks:
   multi-agent-network:
     driver: bridge
 
-# volumes:
-#   postgres_data:
+volumes:
+  cache_data:
+    driver: local
+  docs_data:
+    driver: local
+  # postgres_data:

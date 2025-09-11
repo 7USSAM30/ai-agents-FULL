@@ -49,9 +49,9 @@ class ResearchAgent:
                 auth_client_secret=weaviate.AuthApiKey(api_key=self.weaviate_api_key),
                 additional_headers={
                     "X-OpenAI-Api-Key": self.openai_api_key
-                } if self.openai_api_key else {},
-                timeout_config=(5, 15)  # Connection timeout, read timeout
+                } if self.openai_api_key else {}
             )
+            
             
             # Test connection before creating schema
             self.client.schema.get()

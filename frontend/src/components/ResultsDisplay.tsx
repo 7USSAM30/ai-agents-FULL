@@ -19,6 +19,17 @@ interface Document {
   similarity_score: number;
 }
 
+interface AgentContribution {
+  status: string;
+  contribution: string;
+}
+
+interface SourceWithDetails {
+  title: string;
+  source?: string;
+  similarity_score?: number;
+}
+
 interface ResultData {
   type: string;
   data?: {
@@ -30,8 +41,12 @@ interface ResultData {
     confidence?: number;
     text?: string;
     error?: string;
+    insights?: string[];
+    recommendations?: string[];
+    agent_contributions?: Record<string, AgentContribution>;
     [key: string]: unknown;
   };
+  // Direct properties (for backward compatibility)
   articles?: Article[];
   documents?: Document[];
   sources?: Source[];
@@ -40,6 +55,9 @@ interface ResultData {
   confidence?: number;
   text?: string;
   error?: string;
+  insights?: string[];
+  recommendations?: string[];
+  agent_contributions?: Record<string, AgentContribution>;
   [key: string]: unknown;
 }
 
@@ -130,7 +148,7 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900">Research Results</h3>
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="text-gray-800">{data.summary}</p>
+              <div className="text-gray-800 whitespace-pre-line">{data.summary}</div>
             </div>
             {data.sources && data.sources.length > 0 && (
               <div>
@@ -166,6 +184,85 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
               </div>
             ) : (
               <div className="text-gray-500 italic">No documents found</div>
+            )}
+          </div>
+        );
+
+      case 'comprehensive_summary':
+        return (
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-900">Comprehensive Analysis</h3>
+            
+            {/* Main Summary */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <h4 className="font-medium text-blue-900 mb-3">📋 Summary</h4>
+              <div className="text-blue-800 leading-relaxed whitespace-pre-line">
+                {data.summary}
+              </div>
+            </div>
+
+            {/* Key Insights */}
+            {data.insights && data.insights.length > 0 && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 className="font-medium text-green-900 mb-3">💡 Key Insights</h4>
+                <ul className="space-y-2">
+                  {data.insights.map((insight: string, index: number) => (
+                    <li key={index} className="text-green-800 flex items-start">
+                      <span className="mr-2">•</span>
+                      <span>{insight}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Recommendations */}
+            {data.recommendations && data.recommendations.length > 0 && (
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <h4 className="font-medium text-purple-900 mb-3">🎯 Recommendations</h4>
+                <ul className="space-y-2">
+                  {data.recommendations.map((recommendation: string, index: number) => (
+                    <li key={index} className="text-purple-800 flex items-start">
+                      <span className="mr-2">•</span>
+                      <span>{recommendation}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Agent Contributions */}
+            {data.agent_contributions && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-3">🤖 Agent Contributions</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {Object.entries(data.agent_contributions).map(([agent, info]: [string, AgentContribution]) => (
+                    <div key={agent} className="flex items-center justify-between p-2 bg-white rounded border">
+                      <span className="font-medium text-gray-700 capitalize">{agent.replace('_', ' ')}</span>
+                      <span className={`px-2 py-1 rounded text-xs ${
+                        info.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
+                      }`}>
+                        {info.contribution}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Sources */}
+            {data.sources && data.sources.length > 0 && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h4 className="font-medium text-yellow-900 mb-3">📚 Sources</h4>
+                <div className="space-y-2">
+                  {data.sources.slice(0, 5).map((source: SourceWithDetails, index: number) => (
+                    <div key={index} className="text-yellow-800 text-sm">
+                      <span className="font-medium">{source.title}</span>
+                      {source.source && <span className="text-yellow-600"> - {source.source}</span>}
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         );

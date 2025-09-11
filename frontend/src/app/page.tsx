@@ -10,16 +10,21 @@ export default function Home() {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [cacheCleared, setCacheCleared] = useState(false);
 
   const handleQuery = async (queryText: string) => {
     setLoading(true);
     setError('');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/query`, {
+      // Add cache-busting parameter to ensure fresh results
+      const timestamp = Date.now();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/query?t=${timestamp}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         },
         body: JSON.stringify({
           query: queryText,
@@ -41,6 +46,24 @@ export default function Home() {
     }
   };
 
+  const clearCache = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/cache/clear`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        setCacheCleared(true);
+        setTimeout(() => setCacheCleared(false), 3000); // Hide message after 3 seconds
+      }
+    } catch (err) {
+      console.error('Cache clear error:', err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -59,6 +82,20 @@ export default function Home() {
 
           {/* Query Input */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold text-gray-900">Ask a Question</h2>
+              <button
+                onClick={clearCache}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+              >
+                Clear Cache
+              </button>
+            </div>
+            {cacheCleared && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-800 text-sm">✅ Cache cleared successfully!</p>
+              </div>
+            )}
             <QueryInput 
               onQuery={handleQuery} 
               loading={loading}
