@@ -5,14 +5,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { query, user_id = 'anonymous', use_orchestrator = false } = body;
 
-    if (!query) {
+    if (!query || typeof query !== 'string') {
       return NextResponse.json(
-        { error: 'Query is required' },
+        { error: 'Query is required and must be a string' },
         { status: 400 }
       );
     }
 
-    // Simple AI agent logic for news queries
+    // Simple AI agent logic
     let agents_used = [];
     let result = {};
 
@@ -136,8 +136,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response);
   } catch (error) {
     console.error('Query processing error:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      query: request.body
+    });
+    
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { 
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     );
   }
