@@ -1,7 +1,7 @@
 {
   "name": "multi-agent-ai-frontend",
-  "version": "2.0.0",
-  "description": "Frontend for Multi-Agent AI System with GPT-5 integration, featuring cyberpunk Matrix-style UI with letter glitch background",
+  "version": "2.1.0",
+  "description": "Frontend for Multi-Agent AI System - Fully functional with restored original design and multi-agent orchestration",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -13,27 +13,22 @@
     "clean": "rm -rf .next out"
   },
   "dependencies": {
-    "next": "^15.1.5",
-    "postprocessing": "^6.37.7",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "autoprefixer": "^10.4.21",
+    "next": "^14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3.2.0",
-    "@tailwindcss/postcss": "^4.0.0",
-    "@types/node": "^22.10.2",
-    "@types/react": "^19.0.2",
-    "@types/react-dom": "^19.0.2",
-    "@types/three": "^0.180.0",
-    "@typescript-eslint/eslint-plugin": "^8.18.1",
-    "@typescript-eslint/parser": "^8.18.1",
-    "eslint": "^9.17.0",
-    "eslint-config-next": "^15.1.5",
-    "prettier": "^3.4.2",
-    "prettier-plugin-tailwindcss": "^0.6.8",
-    "tailwindcss": "^3.4.17",
-    "three": "^0.179.1",
-    "typescript": "^5.7.2"
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.3.24",
+    "@types/react-dom": "^18.3.7",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.0.0"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -42,17 +37,18 @@
   "keywords": [
     "ai",
     "multi-agent",
-    "gpt-5",
+    "gpt-4o",
     "nextjs",
     "react",
     "typescript",
     "tailwindcss",
-    "threejs",
-    "postprocessing",
     "letter-glitch",
     "cyberpunk",
     "matrix",
-    "glass-morphism"
+    "glass-morphism",
+    "weaviate",
+    "rag",
+    "fastapi"
   ],
   "author": "Multi-Agent AI System",
   "license": "MIT"
