@@ -1,7 +1,10 @@
 {
   "version": 2,
+  "buildCommand": "cd frontend && npm run build",
+  "outputDirectory": "frontend/.next",
+  "installCommand": "cd frontend && npm install",
   "functions": {
-    "app/api/**/*.ts": {
+    "frontend/src/app/api/**/*.ts": {
       "maxDuration": 30
     }
   },
