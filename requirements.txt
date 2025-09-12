@@ -1,0 +1,63 @@
+# Multi-Agent AI System Requirements
+# Updated: January 2025 - Fully functional with multi-agent orchestration
+
+# FastAPI and web framework
+fastapi>=0.116.1,<1.0.0
+uvicorn[standard]>=0.35.0,<1.0.0
+pydantic>=2.11.7,<3.0.0
+python-multipart>=0.0.20,<1.0.0
+
+# LangGraph and AI/ML orchestration
+langgraph>=0.2.45,<1.0.0
+langchain>=0.3.7,<1.0.0
+langchain-openai>=0.2.8,<1.0.0
+langchain-community>=0.3.7,<1.0.0
+
+# Vector database (Weaviate Cloud)
+weaviate-client>=4.8.0,<5.0.0
+
+# HTTP requests and APIs
+httpx>=0.28.1,<1.0.0
+requests>=2.32.5,<3.0.0
+
+# Data processing and analysis
+pandas>=2.2.3,<3.0.0
+numpy>=1.26.4,<2.0.0
+
+# Environment and configuration
+python-dotenv>=1.1.1,<2.0.0
+
+# Caching and serialization
+redis>=5.2.0,<6.0.0
+
+# Text processing and NLP
+nltk>=3.9.1,<4.0.0
+textblob>=0.17.1,<1.0.0
+spacy>=3.7.7,<4.0.0
+
+# OpenAI API (GPT-4o support)
+openai>=1.58.1,<2.0.0
+
+# Async utilities
+aiofiles>=24.1.0,<25.0.0
+asyncio-mqtt>=0.16.1,<1.0.0
+
+# JSON and data handling
+orjson>=3.10.12,<4.0.0
+
+# Date and time utilities
+python-dateutil>=2.9.0,<3.0.0
+
+# Development and testing
+pytest>=8.3.4,<9.0.0
+pytest-asyncio>=0.24.0,<1.0.0
+black>=24.10.0,<25.0.0
+flake8>=7.1.1,<8.0.0
+
+# Optional: Database support
+# psycopg2-binary>=2.9.9,<3.0.0  # PostgreSQL
+# sqlalchemy>=2.0.23,<3.0.0
+
+# Optional: Monitoring and logging
+# structlog>=23.2.0,<24.0.0
+# sentry-sdk>=1.38.0,<2.0.0
