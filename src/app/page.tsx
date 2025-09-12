@@ -87,12 +87,14 @@ export default function Home() {
           <div className="max-w-5xl mx-auto space-y-8">
             {/* Hero Section */}
             <div className="text-center mb-16">
-              <h1 className="text-5xl font-bold text-white mb-6 drop-shadow-2xl tracking-wide">
-                Multi-Agent AI System
-              </h1>
-              <p className="text-xl text-cyan-200 mb-8 drop-shadow-lg max-w-2xl mx-auto leading-relaxed">
-                Ask questions and get intelligent responses from our specialized AI agents. The system learns from every technology-related query!
-              </p>
+              <div className="bg-black/70 backdrop-blur-lg rounded-2xl p-8 border border-cyan-500/30 shadow-2xl">
+                <h1 className="text-5xl font-bold text-white mb-6 drop-shadow-2xl tracking-wide bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent">
+                  Multi-Agent AI System
+                </h1>
+                <p className="text-xl text-white mb-8 drop-shadow-lg max-w-2xl mx-auto leading-relaxed font-medium">
+                  Ask questions and get intelligent responses from our specialized AI agents. The system learns from every technology-related query!
+                </p>
+              </div>
             </div>
 
             {/* Query Input */}

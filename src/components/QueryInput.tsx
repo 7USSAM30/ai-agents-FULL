@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import ElectricBorder from './ElectricBorder';
 
 interface QueryInputProps {
   onQuery: (query: string) => void;
@@ -51,28 +52,36 @@ export default function QueryInput({ onQuery, loading, placeholder }: QueryInput
             <span className="font-medium">Shift + Enter for new line</span>
           </div>
           
-          <button
-            type="submit"
-            disabled={!inputValue.trim() || loading}
-            className="bg-cyan-600 text-white px-8 py-3 rounded-xl hover:bg-cyan-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-3 font-medium shadow-lg hover:shadow-cyan-500/25"
+          <ElectricBorder 
+            color="#06b6d4" 
+            speed={1.5} 
+            chaos={0.8} 
+            thickness={2}
+            style={{ borderRadius: '12px' }}
           >
-            {loading ? (
-              <>
-                <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <span>Processing...</span>
-              </>
-            ) : (
-              <>
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-                <span>Submit Query</span>
-              </>
-            )}
-          </button>
+            <button
+              type="submit"
+              disabled={!inputValue.trim() || loading}
+              className="bg-cyan-600 text-white px-8 py-3 rounded-xl hover:bg-cyan-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 flex items-center space-x-3 font-medium shadow-lg hover:shadow-cyan-500/25"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Processing...</span>
+                </>
+              ) : (
+                <>
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                  <span>Submit Query</span>
+                </>
+              )}
+            </button>
+          </ElectricBorder>
         </div>
       </form>
     </div>

@@ -21,20 +21,13 @@ export default function AgentStatus() {
 
   const fetchAgentStatus = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/agents/status`);
+      const response = await fetch('/api/agents/status');
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json() as { agents: Record<string, { status: string; description: string; last_used?: string; performance_metrics?: Record<string, unknown> }> };
-      // Convert object to array with name property
-      const agentsArray = Object.entries(data.agents).map(([name, agentData]) => ({
-        name,
-        status: agentData.status,
-        description: agentData.description,
-        last_used: agentData.last_used,
-        performance_metrics: agentData.performance_metrics
-      }));
-      setAgents(agentsArray);
+      const data = await response.json() as { agents: Array<{ name: string; status: string; description: string; last_used?: string; performance_metrics?: Record<string, unknown> }> };
+      // Data is already an array, no need to convert
+      setAgents(data.agents);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch agent status');
     } finally {

@@ -89,25 +89,25 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
         return (
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Sentiment Analysis</h3>
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+            <div className="bg-black/50 border border-cyan-500/20 rounded-xl p-6 backdrop-blur-sm shadow-lg">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-gray-900 dark:text-gray-100">Sentiment:</span>
+                <span className="font-medium text-cyan-200">Sentiment:</span>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  data.sentiment === 'positive' ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200' :
-                  data.sentiment === 'negative' ? 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200' :
-                  'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200'
+                  (data.sentiment || result.sentiment) === 'positive' ? 'bg-green-900/50 text-green-300 border border-green-500/30' :
+                  (data.sentiment || result.sentiment) === 'negative' ? 'bg-red-900/50 text-red-300 border border-red-500/30' :
+                  'bg-gray-800/50 text-gray-300 border border-gray-500/30'
                 }`}>
-                  {data.sentiment ? data.sentiment.charAt(0).toUpperCase() + data.sentiment.slice(1) : 'Unknown'}
+                  {(data.sentiment || result.sentiment) ? (data.sentiment || result.sentiment).charAt(0).toUpperCase() + (data.sentiment || result.sentiment).slice(1) : 'Unknown'}
                 </span>
               </div>
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-gray-900 dark:text-gray-100">Confidence:</span>
-                <span className="text-sm text-gray-700 dark:text-gray-300">{Math.round((data.confidence || 0) * 100)}%</span>
+                <span className="font-medium text-cyan-200">Confidence:</span>
+                <span className="text-sm text-cyan-300">{Math.round(((data.confidence || result.confidence) || 0) * 100)}%</span>
               </div>
-              {data.text && (
+              {(data.text || (typeof result.data === 'string' ? result.data : null)) && (
                 <div className="mt-3">
-                  <span className="font-medium text-gray-900 dark:text-gray-100">Analyzed Text:</span>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{data.text}</p>
+                  <span className="font-medium text-cyan-200">Analyzed Text:</span>
+                  <p className="text-sm text-cyan-100/80 mt-1">{data.text || (typeof result.data === 'string' ? result.data : '')}</p>
                 </div>
               )}
             </div>
@@ -116,23 +116,42 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
 
       case 'news_summary':
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">News Summary</h3>
-            {data.articles && data.articles.length > 0 ? (
-              <div className="space-y-3">
-                {data.articles.map((article: Article, index: number) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 mb-2">{article.headline}</h4>
-                    <p className="text-gray-600 text-sm mb-2">{article.summary}</p>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>{article.source}</span>
-                      <span>{formatTimestamp(article.published_at)}</span>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-cyan-300">📰 Latest AI News</h3>
+              <span className="text-sm text-cyan-400 bg-cyan-900/30 px-3 py-1 rounded-full border border-cyan-500/30">
+                {(data.articles || result.articles)?.length || 0} Articles
+              </span>
+            </div>
+            {(data.articles || result.articles) && (data.articles || result.articles).length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {(data.articles || result.articles).map((article: { title?: string; headline?: string; summary: string; source: string; publishedAt?: string; published_at?: string }, index: number) => (
+                  <div key={index} className="bg-black/60 border border-cyan-500/30 rounded-xl p-5 backdrop-blur-sm shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 hover:border-cyan-400/50">
+                    <div className="flex items-start justify-between mb-3">
+                      <span className="text-xs text-cyan-400 bg-cyan-900/40 px-2 py-1 rounded-full border border-cyan-500/30">
+                        #{index + 1}
+                      </span>
+                      <span className="text-xs text-cyan-300/70">
+                        {formatTimestamp(article.publishedAt || article.published_at)}
+                      </span>
+                    </div>
+                    <h4 className="font-semibold text-cyan-200 mb-3 leading-tight">{article.title || article.headline}</h4>
+                    <p className="text-cyan-100/80 text-sm mb-4 leading-relaxed">{article.summary}</p>
+                    <div className="flex items-center justify-between pt-3 border-t border-cyan-500/20">
+                      <span className="text-xs text-cyan-400 font-medium">{article.source}</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                        <span className="text-xs text-cyan-300/60">Live</span>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-gray-500 italic">No articles found</div>
+              <div className="text-center py-12">
+                <div className="text-cyan-300/50 text-6xl mb-4">📰</div>
+                <div className="text-cyan-300/70 italic text-lg">No articles found</div>
+              </div>
             )}
           </div>
         );
@@ -161,23 +180,42 @@ export default function ResultsDisplay({ results }: ResultsDisplayProps) {
 
       case 'research_results':
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900">Research Results</h3>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-cyan-300">🔍 Research Results</h3>
+              <span className="text-sm text-cyan-400 bg-cyan-900/30 px-3 py-1 rounded-full border border-cyan-500/30">
+                {data.documents?.length || 0} Documents
+              </span>
+            </div>
             {data.documents && data.documents.length > 0 ? (
-              <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {data.documents.map((doc: Document, index: number) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 mb-2">{doc.title}</h4>
-                    <p className="text-gray-600 text-sm mb-2">{doc.content.substring(0, 200)}...</p>
-                    <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>{doc.source}</span>
-                      <span>Similarity: {Math.round(doc.similarity_score * 100)}%</span>
+                  <div key={index} className="bg-black/60 border border-cyan-500/30 rounded-xl p-5 backdrop-blur-sm shadow-lg hover:shadow-cyan-500/20 transition-all duration-300 hover:border-cyan-400/50">
+                    <div className="flex items-start justify-between mb-3">
+                      <span className="text-xs text-cyan-400 bg-cyan-900/40 px-2 py-1 rounded-full border border-cyan-500/30">
+                        #{index + 1}
+                      </span>
+                      <span className="text-xs text-cyan-300/70">
+                        {Math.round(doc.similarity_score * 100)}% Match
+                      </span>
+                    </div>
+                    <h4 className="font-semibold text-cyan-200 mb-3 leading-tight">{doc.title}</h4>
+                    <p className="text-cyan-100/80 text-sm mb-4 leading-relaxed">{doc.content.substring(0, 200)}...</p>
+                    <div className="flex items-center justify-between pt-3 border-t border-cyan-500/20">
+                      <span className="text-xs text-cyan-400 font-medium">{doc.source}</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-xs text-cyan-300/60">Verified</span>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-gray-500 italic">No documents found</div>
+              <div className="text-center py-12">
+                <div className="text-cyan-300/50 text-6xl mb-4">🔍</div>
+                <div className="text-cyan-300/70 italic text-lg">No documents found</div>
+              </div>
             )}
           </div>
         );

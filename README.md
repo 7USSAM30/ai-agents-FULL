@@ -235,28 +235,44 @@ docker-compose -f docker-compose.yml up -d
 ### Project Structure
 ```
 ai-agents-FULL/
-├── backend/
-│   ├── agents/           # Agent implementations
-│   │   ├── news_agent.py
-│   │   ├── research_agent.py
-│   │   ├── sentiment_agent.py
-│   │   ├── learning_agent.py
-│   │   └── ...
-│   ├── main.py          # FastAPI application
-│   ├── requirements.txt # Python dependencies
-│   └── .env            # Environment configuration
-├── frontend/
+├── backend/                    # FastAPI Backend Service
+│   ├── agents/                # AI Agent implementations
+│   │   ├── news_agent.py      # News fetching and processing
+│   │   ├── research_agent.py  # RAG-based knowledge retrieval
+│   │   ├── sentiment_agent.py # AI-powered sentiment analysis
+│   │   ├── learning_agent.py  # Automatic knowledge expansion
+│   │   ├── decision_agent.py  # Intelligent query routing
+│   │   ├── caching_agent.py   # Performance optimization
+│   │   ├── frontend_agent.py  # Response formatting
+│   │   ├── documentation_agent.py # System documentation
+│   │   ├── summarizer_agent.py # Result synthesis
+│   │   └── langgraph_orchestrator.py # Advanced orchestration
+│   ├── main.py                # FastAPI application entry point
+│   ├── requirements.txt       # Python dependencies
+│   ├── Dockerfile             # Backend container configuration
+│   └── env.example            # Environment variables template
+├── frontend/                  # Next.js Frontend Service
 │   ├── src/
-│   │   ├── components/  # React components
-│   │   │   ├── ResultsDisplay.tsx
-│   │   │   ├── AgentStatus.tsx
-│   │   │   ├── QueryInput.tsx
-│   │   │   └── ...
-│   │   └── app/        # Next.js app router
-│   ├── package.json    # Node.js dependencies
-│   └── next.config.ts  # Next.js configuration
-├── docker-compose.yml   # Multi-container setup
-└── README.md          # This file
+│   │   ├── components/        # React UI components
+│   │   │   ├── ResultsDisplay.tsx # Results visualization
+│   │   │   ├── AgentStatus.tsx    # Agent status cards
+│   │   │   ├── QueryInput.tsx     # Query input form
+│   │   │   ├── Header.tsx         # Navigation header
+│   │   │   └── LetterGlitch.tsx   # Cyberpunk background
+│   │   └── app/              # Next.js app router
+│   │       ├── layout.tsx    # Root layout
+│   │       ├── page.tsx      # Main page
+│   │       └── globals.css   # Global styles
+│   ├── package.json          # Node.js dependencies
+│   ├── next.config.js        # Next.js configuration
+│   ├── tailwind.config.js    # TailwindCSS configuration
+│   └── Dockerfile            # Frontend container configuration
+├── docker-compose.yml        # Multi-service orchestration
+├── docker-setup.sh          # Linux/macOS setup script
+├── docker-setup.ps1         # Windows setup script
+├── docker-manage.sh         # Management commands
+├── DOCKER_GUIDE.md          # Docker documentation
+└── README.md               # This file
 ```
 
 ### Adding New Agents
