@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { query, user_id = 'anonymous', use_orchestrator = false } = body;
+    const { query } = body;
 
     if (!query || typeof query !== 'string') {
       return NextResponse.json(
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Simple AI agent logic
-    let agents_used = [];
+    const agents_used = [];
     let result = {};
 
     // Check if it's a news-related query
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
       
       // Mock news response (you can integrate real NewsAPI later)
       result = {
-        type: 'news_response',
+        type: 'news_summary',
         data: `Here are the latest AI news updates based on your query: "${query}"`,
         articles: [
           {
@@ -101,9 +101,42 @@ export async function POST(request: NextRequest) {
       agents_used.push('research_agent');
       
       result = {
-        type: 'research_response',
-        data: `Research completed for: "${query}". Here's what I found:`,
-        summary: `Based on your query "${query}", I can provide comprehensive information about this topic. The research shows that this is an important area of study with many recent developments.`,
+        type: 'research_results',
+        data: {
+          summary: `Research completed for: "${query}". Here's what I found:`,
+          documents: [
+          {
+            title: `AI Research: ${query}`,
+            content: `Artificial Intelligence (AI) is a rapidly evolving field that encompasses machine learning, deep learning, natural language processing, computer vision, and robotics. Based on your query about "${query}", here's what we found:
+
+AI systems are designed to perform tasks that typically require human intelligence, such as visual perception, speech recognition, decision-making, and language translation. The field has seen tremendous growth in recent years, with applications spanning from healthcare and finance to transportation and entertainment.
+
+Key areas of AI include:
+- Machine Learning: Algorithms that improve through experience
+- Deep Learning: Neural networks with multiple layers
+- Natural Language Processing: Understanding and generating human language
+- Computer Vision: Interpreting visual information
+- Robotics: Creating intelligent machines that can interact with the physical world
+
+The future of AI holds promise for solving complex global challenges while also raising important questions about ethics, privacy, and the future of work.`,
+            source: 'AI Knowledge Base',
+            similarity_score: 0.95
+          },
+          {
+            title: 'Current AI Trends and Developments',
+            content: `Recent developments in AI include advances in large language models, improved computer vision systems, and breakthroughs in reinforcement learning. These technologies are being applied across various industries to improve efficiency, accuracy, and innovation.
+
+Notable trends include:
+- Generative AI and large language models
+- AI-powered automation in business processes
+- Enhanced natural language understanding
+- Improved AI ethics and responsible AI practices
+- Integration of AI with IoT and edge computing`,
+            source: 'Technology Research Database',
+            similarity_score: 0.88
+          }
+        ]
+        },
         formatted: {
           component_type: 'research_cards',
           formatted_data: {

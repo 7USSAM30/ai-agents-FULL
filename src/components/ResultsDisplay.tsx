@@ -24,12 +24,6 @@ interface AgentContribution {
   contribution: string;
 }
 
-interface SourceWithDetails {
-  title: string;
-  source?: string;
-  similarity_score?: number;
-}
-
 interface ResultData {
   type: string;
   data?: {
