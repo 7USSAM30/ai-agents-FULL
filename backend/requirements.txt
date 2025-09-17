@@ -1,52 +1,52 @@
 # Multi-Agent AI System Requirements - Updated January 2025
-# Production optimized for Railway deployment
+# Production optimized for Railway deployment with flexible versioning
 
 # Core FastAPI and web framework
-fastapi==0.116.1
-uvicorn[standard]==0.35.0
-pydantic==2.11.7
-python-multipart==0.0.20
+fastapi>=0.116.0,<0.117.0
+uvicorn[standard]>=0.35.0,<0.36.0
+pydantic>=2.11.0,<2.12.0
+python-multipart>=0.0.20,<0.1.0
 
 # LangGraph and AI/ML orchestration
-langgraph==0.2.45
-langchain==0.3.7
-langchain-openai==0.2.8
-langchain-community==0.3.7
+langgraph>=0.2.40,<0.3.0
+langchain>=0.3.0,<0.4.0
+langchain-openai>=0.2.0,<0.3.0
+langchain-community>=0.3.0,<0.4.0
 
-# Vector database (Weaviate Cloud)
-weaviate-client==4.8.0
+# Vector database (Weaviate Cloud) - Fixed httpx compatibility
+weaviate-client>=4.8.0,<4.9.0
 
-# HTTP requests and APIs
-httpx==0.28.1
-requests==2.32.5
+# HTTP requests and APIs - Compatible with weaviate-client
+httpx>=0.25.0,<=0.27.0
+requests>=2.32.0,<2.33.0
 
 # Data processing and analysis
-pandas==2.2.3
-numpy==1.26.4
+pandas>=2.2.0,<2.3.0
+numpy>=1.26.0,<1.27.0
 
 # Environment and configuration
-python-dotenv==1.1.1
+python-dotenv>=1.1.0,<1.2.0
 
 # Text processing and NLP
-nltk==3.9.1
-textblob==0.17.1
+nltk>=3.9.0,<3.10.0
+textblob>=0.17.0,<0.18.0
 
 # OpenAI API (GPT-4o support)
-openai==1.58.1
+openai>=1.58.0,<1.59.0
 
 # Async utilities
-aiofiles==24.1.0
+aiofiles>=24.1.0,<24.2.0
 
 # JSON and data handling
-orjson==3.10.12
+orjson>=3.10.0,<3.11.0
 
 # Date and time utilities
-python-dateutil==2.9.0
+python-dateutil>=2.9.0,<2.10.0
 
 # Production dependencies
-gunicorn==21.2.0
-watchfiles==0.21.0
+gunicorn>=21.2.0,<21.3.0
+watchfiles>=0.21.0,<0.22.0
 
 # Additional utilities
-validators==0.35.0
-PyYAML==6.0.2
+validators>=0.35.0,<0.36.0
+PyYAML>=6.0.0,<6.1.0
