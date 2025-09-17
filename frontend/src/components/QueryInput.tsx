@@ -53,6 +53,7 @@ export default function QueryInput({ onQuery, loading, placeholder }: QueryInput
           </div>
           
           <StarBorder 
+            as="div"
             color="#06b6d4" 
             speed="3s" 
             thickness={2}
