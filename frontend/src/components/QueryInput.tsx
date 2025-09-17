@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import ElectricBorder from './ElectricBorder';
+import StarBorder from './StarBorder';
 
 interface QueryInputProps {
   onQuery: (query: string) => void;
@@ -52,10 +52,9 @@ export default function QueryInput({ onQuery, loading, placeholder }: QueryInput
             <span className="font-medium">Shift + Enter for new line</span>
           </div>
           
-          <ElectricBorder 
+          <StarBorder 
             color="#06b6d4" 
-            speed={1.5} 
-            chaos={0.8} 
+            speed="3s" 
             thickness={2}
             style={{ borderRadius: '12px' }}
           >
@@ -81,7 +80,7 @@ export default function QueryInput({ onQuery, loading, placeholder }: QueryInput
                 </>
               )}
             </button>
-          </ElectricBorder>
+          </StarBorder>
         </div>
       </form>
     </div>

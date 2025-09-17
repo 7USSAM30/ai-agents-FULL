@@ -6,6 +6,7 @@ import ResultsDisplay from '@/components/ResultsDisplay';
 import AgentStatus from '@/components/AgentStatus';
 import Header from '@/components/Header';
 import LetterGlitch from '@/components/LetterGlitch';
+import { apiClient } from '@/lib/api';
 
 export default function Home() {
   const [results, setResults] = useState(null);
@@ -18,27 +19,13 @@ export default function Home() {
     setError('');
 
     try {
-      // Add cache-busting parameter to ensure fresh results
-      const timestamp = Date.now();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/query?t=${timestamp}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        },
-        body: JSON.stringify({
-          query: queryText,
-          user_id: 'demo_user'
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await apiClient.query(queryText);
+      
+      if (response.error) {
+        throw new Error(response.error);
       }
 
-      const data = await response.json();
-      setResults(data);
+      setResults(response.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       console.error('Query error:', err);
@@ -49,14 +36,11 @@ export default function Home() {
 
   const clearCache = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/cache/clear`, {
+      const response = await apiClient.request('/cache/clear', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
       });
 
-      if (response.ok) {
+      if (!response.error) {
         setCacheCleared(true);
         setTimeout(() => setCacheCleared(false), 3000); // Hide message after 3 seconds
       }

@@ -95,10 +95,21 @@ A production-ready multi-agent AI system built with FastAPI, Next.js, and advanc
 ## 📦 Quick Start
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.11+
 - Node.js 18+
-- Docker (optional)
 - API Keys: NewsAPI, OpenAI, Weaviate Cloud
+
+### 🚀 Easy Installation
+Run the automated installation script:
+
+```bash
+# Windows
+.\install.bat
+
+# Manual installation
+cd backend && pip install -r requirements.txt
+cd ../frontend && npm install
+```
 
 ### 1. Clone and Setup
 ```bash
@@ -106,16 +117,9 @@ git clone <repository-url>
 cd ai-agents-FULL
 ```
 
-### 2. Backend Setup
+### 2. Environment Configuration
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-### 3. Configure Environment
-```bash
 cp env.example .env
 # Edit .env with your API keys:
 # NEWS_API_KEY=your_key
@@ -197,16 +201,39 @@ curl -X POST "http://localhost:8000/query" \
 - `GET /learning/stats` - Learning Agent statistics
 - `GET /cache/stats` - Cache statistics
 
-## 🐳 Docker Deployment
+## 🚀 Deployment
 
-### Development
+### **Separated Deployment (Recommended)**
+
+This project now supports **separated deployment** for better scalability and maintainability:
+
+- **Frontend**: Next.js → **Vercel**
+- **Backend**: FastAPI → **Railway**
+
+#### **Quick Deployment**
 ```bash
-docker-compose up --build
+# Deploy Backend to Railway
+cd backend && railway up
+
+# Deploy Frontend to Vercel  
+cd frontend && vercel --prod
 ```
 
-### Production
+#### **Detailed Guides**
+- 📖 **[Complete Deployment Guide](DEPLOYMENT_GUIDE.md)** - Step-by-step instructions
+- ⚡ **[Quick Deploy Reference](QUICK_DEPLOY.md)** - One-command deployment
+- ✅ **[Deployment Checklist](DEPLOYMENT_CHECKLIST.md)** - Error prevention
+- 🔧 **[Validation Scripts](check-deployment.bat)** - Pre-deployment checks
+
+### **Docker Deployment (Legacy)**
+
+For unified deployment, see the Docker configuration:
+
 ```bash
-# Build and deploy
+# Development
+docker-compose up --build
+
+# Production
 docker-compose -f docker-compose.yml up -d
 ```
 

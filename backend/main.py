@@ -27,6 +27,11 @@ from agents.learning_agent import LearningAgent
 # Load environment variables
 load_dotenv()
 
+# Production configuration
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
+PORT = int(os.getenv("PORT", 8000))
+
 # Helper function to validate agent results
 def _validate_agent_result(agent_name: str, result: Dict[str, Any]) -> bool:
     """Validate agent result based on agent type."""
@@ -43,60 +48,89 @@ def _validate_agent_result(agent_name: str, result: Dict[str, Any]) -> bool:
     else:
         return True
 
-# Initialize agents
-news_agent = NewsAgent()
-research_agent = ResearchAgent()
-sentiment_agent = SentimentAgent()
-summarizer_agent = SummarizerAgent()
-decision_agent = DecisionAgent()
-frontend_agent = FrontendAgent()
-documentation_agent = DocumentationAgent()
-learning_agent = LearningAgent()
+# Initialize agents with error handling
+try:
+    news_agent = NewsAgent()
+    research_agent = ResearchAgent()
+    sentiment_agent = SentimentAgent()
+    summarizer_agent = SummarizerAgent()
+    decision_agent = DecisionAgent()
+    frontend_agent = FrontendAgent()
+    documentation_agent = DocumentationAgent()
+    learning_agent = LearningAgent()
+    print("✅ All agents initialized successfully")
+except Exception as e:
+    print(f"❌ Error initializing agents: {e}")
+    # Set agents to None for graceful degradation
+    news_agent = None
+    research_agent = None
+    sentiment_agent = None
+    summarizer_agent = None
+    decision_agent = None
+    frontend_agent = None
+    documentation_agent = None
+    learning_agent = None
 
-# Initialize Caching Agent
-cache_config = CacheConfig(
-    max_size_mb=100,
-    default_ttl_seconds=3600,  # 1 hour
-    cleanup_interval_seconds=300,  # 5 minutes
-    enable_compression=True,
-    enable_persistence=True,
-    cache_directory="cache"
-)
-caching_agent = CachingAgent(cache_config)
+# Initialize Caching Agent with error handling
+try:
+    cache_config = CacheConfig(
+        max_size_mb=100,
+        default_ttl_seconds=3600,  # 1 hour
+        cleanup_interval_seconds=300,  # 5 minutes
+        enable_compression=True,
+        enable_persistence=True,
+        cache_directory="cache"
+    )
+    caching_agent = CachingAgent(cache_config)
+    print("✅ Caching agent initialized successfully")
+except Exception as e:
+    print(f"❌ Error initializing caching agent: {e}")
+    caching_agent = None
 
-# Initialize LangGraph Orchestrator
-workflow_config = WorkflowConfig(
-    max_parallel_agents=3,
-    timeout_seconds=60.0,
-    enable_retry=True,
-    enable_caching=True,
-    enable_logging=True,
-    state_persistence=True
-)
+# Initialize LangGraph Orchestrator with error handling
+try:
+    workflow_config = WorkflowConfig(
+        max_parallel_agents=3,
+        timeout_seconds=60.0,
+        enable_retry=True,
+        enable_caching=True,
+        enable_logging=True,
+        state_persistence=True
+    )
 
-orchestrator = LangGraphOrchestrator({
-    "news_agent": news_agent,
-    "research_agent": research_agent,
-    "sentiment_agent": sentiment_agent,
-    "summarizer_agent": summarizer_agent,
-    "decision_agent": decision_agent,
-    "frontend_agent": frontend_agent,
-    "documentation_agent": documentation_agent
-}, workflow_config)
+    orchestrator = LangGraphOrchestrator({
+        "news_agent": news_agent,
+        "research_agent": research_agent,
+        "sentiment_agent": sentiment_agent,
+        "summarizer_agent": summarizer_agent,
+        "decision_agent": decision_agent,
+        "frontend_agent": frontend_agent,
+        "documentation_agent": documentation_agent
+    }, workflow_config)
+    print("✅ Orchestrator initialized successfully")
+except Exception as e:
+    print(f"❌ Error initializing orchestrator: {e}")
+    orchestrator = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan event handler for startup and shutdown."""
     # Startup
-    await caching_agent.start_cleanup_task()
+    if caching_agent:
+        try:
+            await caching_agent.start_cleanup_task()
+        except Exception as e:
+            print(f"❌ Error starting caching agent cleanup: {e}")
     yield
     # Shutdown
-    if caching_agent.cleanup_task:
-        caching_agent.cleanup_task.cancel()
+    if caching_agent and hasattr(caching_agent, 'cleanup_task') and caching_agent.cleanup_task:
         try:
+            caching_agent.cleanup_task.cancel()
             await caching_agent.cleanup_task
         except asyncio.CancelledError:
             pass
+        except Exception as e:
+            print(f"❌ Error during cleanup: {e}")
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -109,9 +143,16 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
+    allow_origins=[
+        "http://localhost:3000", 
+        "http://127.0.0.1:3000",
+        "https://*.vercel.app",  # Allow all Vercel deployments
+        "https://multi-agent-ai-frontend.vercel.app",  # Specific Vercel domain
+        "https://multi-agent-ai-frontend-git-main.vercel.app",  # Vercel preview deployments
+        "https://multi-agent-ai-frontend-git-develop.vercel.app"  # Vercel branch deployments
+    ],
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -168,12 +209,28 @@ async def process_query(query_data: Dict[str, Any]):
         if not query:
             raise HTTPException(status_code=400, detail="Query is required")
         
+        # Normalize query: convert questions to search topics
+        normalized_query = query.strip()
+        if normalized_query.endswith('?'):
+            # Remove question mark and convert to search topic
+            normalized_query = normalized_query[:-1].strip()
+            # Convert common question patterns to search topics
+            if normalized_query.lower().startswith(('what is', 'what are', 'what')):
+                normalized_query = normalized_query.lower().replace('what is', '').replace('what are', '').replace('what', '').strip()
+            elif normalized_query.lower().startswith(('how', 'why', 'when', 'where')):
+                # Keep the core topic but remove question words
+                words = normalized_query.lower().split()
+                if len(words) > 1:
+                    normalized_query = ' '.join(words[1:]).strip()
+        
+        print(f"🔍 Original query: '{query}' → Normalized: '{normalized_query}'")
+        
         # Check cache first (but skip for sentiment queries to ensure fresh analysis)
-        if not any(keyword in query.lower() for keyword in ["sentiment", "emotion", "feeling", "mood", "opinion", "attitude", "analyze"]):
-            cached_result = await caching_agent.get_cached_query_result(query)
+        if not any(keyword in normalized_query.lower() for keyword in ["sentiment", "emotion", "feeling", "mood", "opinion", "attitude", "analyze"]):
+            cached_result = await caching_agent.get_cached_query_result(normalized_query)
             if cached_result:
                 return {
-                    "query": query,
+                    "query": query,  # Return original query for display
                     "agents_used": ["caching_agent"],
                     "processing_time": 0.0,
                     "timestamp": datetime.now().isoformat(),
@@ -193,7 +250,7 @@ async def process_query(query_data: Dict[str, Any]):
         agent_results = []
 
         # Use decision agent to analyze query and coordinate agents
-        coordination_plan = await decision_agent.coordinate_agents(query, {
+        coordination_plan = await decision_agent.coordinate_agents(normalized_query, {
             "news_agent": news_agent,
             "research_agent": research_agent,
             "sentiment_agent": sentiment_agent
@@ -282,7 +339,7 @@ async def process_query(query_data: Dict[str, Any]):
             else:
                 # Use summarizer for other types of queries
                 try:
-                    result = await summarizer_agent.summarize_results(query, agent_results)
+                    result = await summarizer_agent.summarize_results(normalized_query, agent_results)
                     agents_used.append("summarizer_agent")
                 except Exception as e:
                     print(f"Summarizer Agent error: {e}")

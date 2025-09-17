@@ -159,6 +159,21 @@ class SummarizerAgent:
             - Use bullet points (-) for sub-points
             - Organize information logically into numbered sections
             
+            IMPORTANT CONTENT GUIDELINES:
+            - If the user asks about AI/artificial intelligence, include ANY content that mentions AI, machine learning, automation, robotics, or related technologies
+            - Be inclusive: articles about "AI server materials", "AI companies", "AI investments", etc. are ALL relevant to AI queries
+            - Don't reject content just because it's not exclusively about AI - include tangential AI-related content
+            - If you have relevant information available, use it to provide a comprehensive answer
+            - Only say "no relevant information" if there is truly NO content related to the query topic
+            - Try to incorporate insights from ALL available articles, not just the first few
+            - If you see "Found X relevant articles", make sure your summary reflects the breadth of those articles
+            
+            CRITICAL: Handle queries with question marks properly:
+            - Queries like "latest News about Ai?" should be treated as search topics, not direct questions
+            - Extract the core topic from questions (e.g., "latest News about Ai?" → "latest AI news")
+            - Provide comprehensive summaries based on available articles, not just direct answers to questions
+            - If articles are found, summarize them even if they don't directly answer a specific question
+            
             Please provide a comprehensive summary that:
             1. Directly answers the user's query
             2. Combines insights from all available sources
@@ -272,10 +287,14 @@ class SummarizerAgent:
             articles = result.get("articles", [])
             if articles:
                 content_parts.append(f"Found {len(articles)} relevant articles:")
-                for i, article in enumerate(articles[:3], 1):  # Top 3 articles
+                for i, article in enumerate(articles[:10], 1):  # Top 10 articles
                     content_parts.append(f"{i}. {article.get('headline', 'No title')}")
                     if article.get('summary'):
-                        content_parts.append(f"   {article.get('summary', '')[:150]}...")
+                        # Provide more context (300 chars instead of 150)
+                        summary = article.get('summary', '')
+                        content_parts.append(f"   {summary[:300]}{'...' if len(summary) > 300 else ''}")
+                    if article.get('source'):
+                        content_parts.append(f"   Source: {article.get('source')}")
         
         return "\n".join(content_parts) if content_parts else "No detailed news content available."
     

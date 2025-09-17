@@ -208,7 +208,7 @@ export default function Documentation() {
                 <h4 className="text-xl font-semibold text-cyan-300 mb-3">News Agent</h4>
                 <p className="text-white mb-3">Fetches and analyzes latest news articles</p>
                 <div className="space-y-2">
-                  <span className="text-cyan-200 text-sm">Keywords: "news", "latest", "breaking"</span>
+                  <span className="text-cyan-200 text-sm">Keywords: &quot;news&quot;, &quot;latest&quot;, &quot;breaking&quot;</span>
                   <span className="text-cyan-200 text-sm">Returns: 10 news articles with summaries</span>
                 </div>
               </div>
@@ -217,7 +217,7 @@ export default function Documentation() {
                 <h4 className="text-xl font-semibold text-cyan-300 mb-3">Research Agent</h4>
                 <p className="text-white mb-3">Provides comprehensive research and knowledge</p>
                 <div className="space-y-2">
-                  <span className="text-cyan-200 text-sm">Keywords: "tell me about", "explain", "research"</span>
+                  <span className="text-cyan-200 text-sm">Keywords: &quot;tell me about&quot;, &quot;explain&quot;, &quot;research&quot;</span>
                   <span className="text-cyan-200 text-sm">Returns: 10+ detailed documents</span>
                 </div>
               </div>
@@ -226,7 +226,7 @@ export default function Documentation() {
                 <h4 className="text-xl font-semibold text-cyan-300 mb-3">Sentiment Agent</h4>
                 <p className="text-white mb-3">Analyzes text sentiment and emotions</p>
                 <div className="space-y-2">
-                  <span className="text-cyan-200 text-sm">Keywords: "sentiment", "feeling", "emotion"</span>
+                  <span className="text-cyan-200 text-sm">Keywords: &quot;sentiment&quot;, &quot;feeling&quot;, &quot;emotion&quot;</span>
                   <span className="text-cyan-200 text-sm">Returns: Sentiment score and confidence</span>
                 </div>
               </div>
@@ -235,7 +235,7 @@ export default function Documentation() {
                 <h4 className="text-xl font-semibold text-cyan-300 mb-3">Summarizer Agent</h4>
                 <p className="text-white mb-3">Creates intelligent summaries</p>
                 <div className="space-y-2">
-                  <span className="text-cyan-200 text-sm">Keywords: "summarize", "brief", "overview"</span>
+                  <span className="text-cyan-200 text-sm">Keywords: &quot;summarize&quot;, &quot;brief&quot;, &quot;overview&quot;</span>
                   <span className="text-cyan-200 text-sm">Returns: Structured summaries</span>
                 </div>
               </div>
@@ -278,7 +278,7 @@ export default function Documentation() {
             <div className="space-y-4">
               <div className="bg-black/50 rounded-lg p-6 border border-cyan-500/20">
                 <h4 className="text-lg font-semibold text-cyan-300 mb-2">Query Not Returning Results</h4>
-                <p className="text-white mb-2">If your query isn't returning expected results:</p>
+                <p className="text-white mb-2">If your query isn&apos;t returning expected results:</p>
                 <ul className="text-cyan-200 space-y-1">
                   <li>• Check if the query contains relevant keywords</li>
                   <li>• Try rephrasing your question</li>
@@ -300,7 +300,7 @@ export default function Documentation() {
 
               <div className="bg-black/50 rounded-lg p-6 border border-cyan-500/20">
                 <h4 className="text-lg font-semibold text-cyan-300 mb-2">Agent Not Responding</h4>
-                <p className="text-white mb-2">If a specific agent isn't working:</p>
+                <p className="text-white mb-2">If a specific agent isn&apos;t working:</p>
                 <ul className="text-cyan-200 space-y-1">
                   <li>• Check agent status in the agents page</li>
                   <li>• Try a different query type</li>

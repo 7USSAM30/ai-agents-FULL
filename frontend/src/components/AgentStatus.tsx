@@ -1,11 +1,19 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { apiClient } from '@/lib/api';
 
 interface Agent {
   name: string;
   status: string;
   description: string;
+  last_used?: string;
+  performance_metrics?: Record<string, unknown>;
+}
+
+interface AgentData {
+  status?: string;
+  description?: string;
   last_used?: string;
   performance_metrics?: Record<string, unknown>;
 }
@@ -21,15 +29,34 @@ export default function AgentStatus() {
 
   const fetchAgentStatus = async () => {
     try {
-      const response = await fetch('/api/agents/status');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const response = await apiClient.getAgentsStatus();
+      
+      if (response.error) {
+        throw new Error(response.error);
       }
-      const data = await response.json() as { agents: Array<{ name: string; status: string; description: string; last_used?: string; performance_metrics?: Record<string, unknown> }> };
-      // Data is already an array, no need to convert
-      setAgents(data.agents);
+
+      const responseData = response.data as { agents: Record<string, AgentData> };
+      const agentsData = responseData?.agents;
+      
+      // Convert object to array if needed
+      let agentsArray: Agent[] = [];
+      if (Array.isArray(agentsData)) {
+        agentsArray = agentsData;
+      } else if (agentsData && typeof agentsData === 'object') {
+        // Convert object to array
+        agentsArray = Object.entries(agentsData).map(([name, data]) => ({
+          name,
+          status: data.status || 'unknown',
+          description: data.description || 'No description available',
+          last_used: data.last_used,
+          performance_metrics: data.performance_metrics
+        }));
+      }
+      
+      setAgents(agentsArray);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch agent status');
+      setAgents([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -139,7 +166,7 @@ export default function AgentStatus() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {agents.map((agent, index) => (
+        {agents && Array.isArray(agents) && agents.map((agent, index) => (
           <div key={index} className="bg-black/50 border border-cyan-500/20 rounded-xl p-6 backdrop-blur-sm shadow-lg">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-cyan-200 capitalize text-lg">
@@ -158,6 +185,13 @@ export default function AgentStatus() {
             )}
           </div>
         ))}
+        {(!agents || !Array.isArray(agents) || agents.length === 0) && (
+          <div className="col-span-full text-center py-12">
+            <div className="text-cyan-300/50 text-6xl mb-4">🤖</div>
+            <div className="text-cyan-300/70 italic text-lg">No agents available</div>
+            <div className="text-cyan-300/50 text-sm mt-2">Check your connection to the backend</div>
+          </div>
+        )}
       </div>
 
       <div className="text-sm text-cyan-300/70 text-center">
