@@ -6,7 +6,7 @@ import ResultsDisplay from '../components/ResultsDisplay';
 import AgentStatus from '../components/AgentStatus';
 import Header from '../components/Header';
 import LetterGlitch from '../components/LetterGlitch';
-import { apiClient } from '../lib/api';
+import { apiClient } from '../utils/api';
 
 export default function Home() {
   const [results, setResults] = useState(null);
