@@ -12,7 +12,7 @@ const nextConfig = {
   
   // Enable experimental features for better performance
   experimental: {
-    optimizePackageImports: ['@/components', '@/lib'],
+    // Removed optimizePackageImports to fix module resolution issues
   },
   
   // Image optimization
