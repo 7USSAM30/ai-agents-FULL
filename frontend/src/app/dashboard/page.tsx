@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import Header from '@/components/Header';
-import LetterGlitch from '@/components/LetterGlitch';
+import Header from '../../components/Header';
+import LetterGlitch from '../../components/LetterGlitch';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from 'react';
-import QueryInput from '@/components/QueryInput';
-import ResultsDisplay from '@/components/ResultsDisplay';
-import AgentStatus from '@/components/AgentStatus';
-import Header from '@/components/Header';
-import LetterGlitch from '@/components/LetterGlitch';
-import { apiClient } from '@/lib/api';
+import QueryInput from '../components/QueryInput';
+import ResultsDisplay from '../components/ResultsDisplay';
+import AgentStatus from '../components/AgentStatus';
+import Header from '../components/Header';
+import LetterGlitch from '../components/LetterGlitch';
+import { apiClient } from '../lib/api';
 
 export default function Home() {
   const [results, setResults] = useState(null);

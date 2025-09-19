@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import Header from '@/components/Header';
-import LetterGlitch from '@/components/LetterGlitch';
+import Header from '../../components/Header';
+import LetterGlitch from '../../components/LetterGlitch';
 
 export default function Agents() {
   const [selectedAgent, setSelectedAgent] = useState<string | null>(null);
