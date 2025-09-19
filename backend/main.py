@@ -150,7 +150,7 @@ app.add_middleware(
         "https://multi-agent-ai-frontend.vercel.app",  # Specific Vercel domain
         "https://multi-agent-ai-frontend-git-main.vercel.app",  # Vercel preview deployments
         "https://multi-agent-ai-frontend-git-develop.vercel.app",  # Vercel branch deployments
-        "*"  # Temporarily allow all origins for debugging
+        "*"  # Temporarily allow all origins for debugging - Weaviate config test
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
